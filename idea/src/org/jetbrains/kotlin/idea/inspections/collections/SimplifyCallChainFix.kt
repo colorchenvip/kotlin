@@ -21,8 +21,8 @@ import com.intellij.codeInspection.ProblemDescriptor
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.core.replaced
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 
 class SimplifyCallChainFix(private val newCallText: String) : LocalQuickFix {
     private val shortenedText = newCallText.split("(").joinToString(separator = "(") {
@@ -53,8 +53,17 @@ class SimplifyCallChainFix(private val newCallText: String) : LocalQuickFix {
             val arguments = secondCallExpression.valueArgumentList?.arguments.orEmpty().map { it.text } +
                     firstCallExpression.valueArgumentList?.arguments.orEmpty().map { "$lastArgumentPrefix${it.text}" }
             val lambdaExpression = firstCallExpression.lambdaArguments.singleOrNull()?.getLambdaExpression()
+            val firstCallArgumentList = firstCallExpression.valueArgumentList
+            val secondCallArgumentList = secondCallExpression.valueArgumentList
+            val argumentsText = when {
+                secondCallArgumentList?.arguments?.isNotEmpty() == true && firstCallArgumentList?.arguments?.isNotEmpty() == true -> {
+                    "${secondCallArgumentList.text.removeSuffix(")")}, ${firstCallArgumentList.text.removePrefix("(")}"
+                }
+                secondCallArgumentList?.arguments?.isNotEmpty() == true -> secondCallArgumentList.text
+                firstCallArgumentList?.arguments?.isNotEmpty() == true -> firstCallArgumentList.text
+                else -> ""
+            }
 
-            val argumentsText = arguments.ifNotEmpty { joinToString(prefix = "(", postfix = ")") } ?: ""
             val newQualifiedExpression = if (lambdaExpression != null) factory.createExpressionByPattern(
                 "$0$1$2 $3 $4",
                 receiverExpression ?: "",
