@@ -1,8 +1,8 @@
 // WITH_COROUTINES
 // FILE: test.kt
 fun testSoF() {
-    val sof = SuccessOrFailure.success("yes!")
-    val failure = SuccessOrFailure.failure<String>(Exception())
+    val sof = Result.success("yes!")
+    val failure = Result.failure<String>(Exception())
 
     if (sof.isSuccess) println("success")
     if (sof.isFailure) println("failure")
@@ -10,7 +10,7 @@ fun testSoF() {
     println(failure.getOrNull())
     println(failure.exceptionOrNull())
 
-    val other = SuccessOrFailure.success("nope")
+    val other = Result.success("nope")
     if (sof == other) println("==")
     if (sof != other) println("!=")
     if (sof.equals(other)) println("equals")
@@ -31,6 +31,6 @@ fun testSoF() {
 }
 
 // @TestKt.class:
-// 0 SuccessOrFailure\$Erased
-// 0 SuccessOrFailure\-Erased
-// 58 SuccessOrFailure
+// 0 Result\$Erased
+// 0 Result\-Erased
+// 58 Result
