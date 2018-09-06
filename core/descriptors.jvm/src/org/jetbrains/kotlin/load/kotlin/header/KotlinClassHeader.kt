@@ -78,5 +78,8 @@ class KotlinClassHeader(
     val isScript: Boolean
         get() = (extraInt and JvmAnnotationNames.METADATA_SCRIPT_FLAG) != 0
 
+    val isStrictMetadataVersionSemantics: Boolean
+        get() = (extraInt and JvmAnnotationNames.METADATA_STRICT_VERSION_SEMANTICS_FLAG) != 0
+
     override fun toString() = "$kind version=$metadataVersion"
 }
