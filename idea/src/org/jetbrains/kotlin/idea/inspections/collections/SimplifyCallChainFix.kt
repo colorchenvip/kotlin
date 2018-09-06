@@ -49,20 +49,28 @@ class SimplifyCallChainFix(private val newCallText: String) : LocalQuickFix {
             val firstCallExpression = AbstractCallChainChecker.getCallExpression(firstExpression) ?: return
             val secondCallExpression = secondQualifiedExpression.selectorExpression as? KtCallExpression ?: return
 
-            val lastArgumentPrefix = if (newCallText.startsWith("joinTo")) "transform = " else ""
-            val arguments = secondCallExpression.valueArgumentList?.arguments.orEmpty().map { it.text } +
-                    firstCallExpression.valueArgumentList?.arguments.orEmpty().map { "$lastArgumentPrefix${it.text}" }
-            val lambdaExpression = firstCallExpression.lambdaArguments.singleOrNull()?.getLambdaExpression()
+            val lastArgumentName = if (newCallText.startsWith("joinTo")) Name.identifier("transform") else null
+            if (lastArgumentName != null) {
+                val lastArgument = firstCallExpression.valueArgumentList?.arguments?.singleOrNull()
+                val argumentExpression = lastArgument?.getArgumentExpression()
+                if (argumentExpression != null) {
+                    lastArgument.replace(factory.createArgument(argumentExpression, lastArgumentName))
+                }
+            }
             val firstCallArgumentList = firstCallExpression.valueArgumentList
+            val firstCallArguments = firstCallArgumentList?.arguments
             val secondCallArgumentList = secondCallExpression.valueArgumentList
+            val secondCallArguments = secondCallArgumentList?.arguments
+
             val argumentsText = when {
-                secondCallArgumentList?.arguments?.isNotEmpty() == true && firstCallArgumentList?.arguments?.isNotEmpty() == true -> {
+                secondCallArguments?.isNotEmpty() == true && firstCallArguments?.isNotEmpty() == true -> {
                     "${secondCallArgumentList.text.removeSuffix(")")}, ${firstCallArgumentList.text.removePrefix("(")}"
                 }
-                secondCallArgumentList?.arguments?.isNotEmpty() == true -> secondCallArgumentList.text
-                firstCallArgumentList?.arguments?.isNotEmpty() == true -> firstCallArgumentList.text
+                secondCallArguments?.isNotEmpty() == true -> secondCallArgumentList.text
+                firstCallArguments?.isNotEmpty() == true -> firstCallArgumentList.text
                 else -> ""
             }
+            val lambdaExpression = firstCallExpression.lambdaArguments.singleOrNull()?.getLambdaExpression()
 
             val newQualifiedExpression = if (lambdaExpression != null) factory.createExpressionByPattern(
                 "$0$1$2 $3 $4",
