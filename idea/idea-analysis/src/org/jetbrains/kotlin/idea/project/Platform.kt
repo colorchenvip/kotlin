@@ -18,12 +18,14 @@ package org.jetbrains.kotlin.idea.project
 
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.ProjectRootModificationTracker
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
@@ -157,6 +159,9 @@ fun Project.getLanguageVersionSettings(
 }
 
 private val LANGUAGE_VERSION_SETTINGS = Key.create<CachedValue<LanguageVersionSettings>>("LANGUAGE_VERSION_SETTINGS")
+
+fun PsiElement.getLanguageVersionSettingsOrDefault(): LanguageVersionSettings =
+    ModuleUtilCore.findModuleForPsiElement(this)?.languageVersionSettings ?: LanguageVersionSettingsImpl.DEFAULT
 
 val Module.languageVersionSettings: LanguageVersionSettings
     get() {
