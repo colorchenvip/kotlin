@@ -390,7 +390,7 @@ class UnusedSymbolInspection : AbstractKotlinInspection() {
                 continue
 
             val intentionAction =
-                QuickFixFactory.getInstance().createAddToDependencyInjectionAnnotationsFix(declaration.project, fqName, "declarations")
+                QuickFixFactory.getInstance().createAddToDependencyInjectionAnnotationsFix(declaration.project, fqName)
             list.add(IntentionWrapper(intentionAction, declaration.containingFile))
         }
 
